@@ -1,12 +1,16 @@
-import React, { Component } from 'react'
-import { withRouter } from "react-router-dom";
+import React from 'react'
+import { Formik, Form } from 'formik';
+import { useHistory } from "react-router-dom";
 import authService from '../../../services/auth.service';
-import TextBoxField from '../../common/TextBoxField';
+import MyTextInput from '../../common/MyTextInput';
+import validationFields from './validation';
+import { useDispatch } from 'react-redux';
+import { REGISTER } from '../../../constants/actionTypes';
 
 
-export class RegisterPage extends Component {
+const RegisterPage = () => {
 
-    state = {
+    const initState = {
         email: '',
         phone: '',
         firstName: '',
@@ -14,91 +18,76 @@ export class RegisterPage extends Component {
         password: '',
         confirmPassword: ''
     }
+    const history = useHistory();
+    const dispatch = useDispatch();
 
-    onChangeHandler = (e) => {
-        //console.log("onChange name", e.target.name);
-        //console.log("onChange value", e.target.value);
-        this.setState({[e.target.name]: e.target.value});
-    }
+    const onSubmitHandler = async (values) => {
 
-    onSubmitFormHandler = async (e) => {
-        e.preventDefault();
-        console.log("Посилаємо на сервер", this.state);
-        // authService.register(this.state)
-        //     .then(result=>{
-        //         console.log("Server is good ", result);
-        //     },
-        //     error => {
-        //         console.log("Server is bad ", error);
-        //     })
-        //     .catch(errorServer => {
-
-        //     });
-
-
-        try{
-            const result = await authService.register(this.state);
+        try {
+            const result = await authService.register(values);
             console.log("Server is good ", result);
-            this.props.history.push("/");
+            dispatch({type: REGISTER, payload: values.email});
+            history.push("/");
         }
-        catch(error) {
+        catch (error) {
             console.log("Server is bad ", error.response);
         }
     }
 
-    render() {
-        //console.log("state", this.state);
-        const { email, phone, firstName, secondName, password, confirmPassword} = this.state;
-        return (
-            <div className="row">
-                <div className="offset-md-3 col-md-6">
+    return (
+        <div className="row">
+            <div className="offset-md-3 col-md-6">
                 <h1 className="text-center">Реєстрація</h1>
-                <form onSubmit={this.onSubmitFormHandler}>
-                    <TextBoxField 
-                        field="email"
-                        label="Електронна пошта"
-                        value={email}
-                        onChangeHandler={this.onChangeHandler}/>
+                <Formik
+                    initialValues={initState}
+                    validationSchema={validationFields()}
+                    onSubmit={onSubmitHandler}
+                >
+                    <Form>
+                        <MyTextInput
+                            label="Електронна пошта"
+                            name="email"
+                            id="email"
+                            type="email" />
 
-                    <TextBoxField 
-                        field="phone"
-                        label="Телефон"
-                        value={phone}
-                        onChangeHandler={this.onChangeHandler}/>
+                        <MyTextInput
+                            label="Телефон"
+                            name="phone"
+                            id="phone"
+                            type="text" />
 
-                    <TextBoxField 
-                        field="secondName"
-                        label="Прізвище"
-                        value={secondName}
-                        onChangeHandler={this.onChangeHandler}/>
+                        <MyTextInput
+                            label="Прізвище"
+                            name="secondName"
+                            id="secondName"
+                            type="text" />
 
-                    <TextBoxField 
-                        field="firstName"
-                        label="Ім'я"
-                        value={firstName}
-                        onChangeHandler={this.onChangeHandler}/>
+                        <MyTextInput
+                            label="Ім'я"
+                            name="firstName" 
+                            id="firstName"
+                            type="text" />
 
-                    <TextBoxField 
-                        field="password"
-                        type="password"
-                        label="Пароль"
-                        value={password}
-                        onChangeHandler={this.onChangeHandler}/>
+                        <MyTextInput
+                            label="Пароль"
+                            name="password"
+                            id="password"
+                            type="password"/>
 
-                    <TextBoxField 
-                        field="confirmPassword"
-                        type="password"
-                        label="Підтвердження пароль"
-                        value={confirmPassword}
-                        onChangeHandler={this.onChangeHandler}/>
-                    
-                    <button type="submit" className="btn btn-primary">Реєстрація</button>
-                </form>
-                </div>
+                        <MyTextInput
+                            label="Підтвердження пароль"
+                            name="confirmPassword"
+                            id="confirmPassword"
+                            type="password" />
 
+                        <button type="submit" className="btn btn-primary">Реєстрація</button>
+                    </Form>
+                </Formik>
             </div>
-        )
-    }
+
+        </div>
+    )
 }
 
-export default withRouter(RegisterPage)
+
+export default RegisterPage
