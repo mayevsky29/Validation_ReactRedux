@@ -3,7 +3,7 @@ import * as Yup from 'yup';
 const validationFields= () => {
     return Yup.object({
         email: Yup.string()
-            .email('Не коректно вказана пошта')
+            .email('Не правильна пошта')
             .required("Вкажіть пошту"),
         password: Yup.string()
             .required('Вкажіть пароль.') 

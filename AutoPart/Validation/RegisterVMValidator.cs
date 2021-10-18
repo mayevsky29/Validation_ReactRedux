@@ -10,85 +10,35 @@ using System.Threading.Tasks;
 
 namespace AutoPart.Validation
 {
-    public class AccountVMValidator : AbstractValidator<RegisterViewModel>
+    public class ValidatorRegisterViewModel : AbstractValidator<RegisterViewModel>
     {
-        //private readonly UserManager<AppUser> _userManager;
-        private readonly AppEFContext _appEFContext;
-
-        public AccountVMValidator(
-            AppEFContext appEFContext
-            )
+        private readonly UserManager<AppUser> _userManager;
+        public ValidatorRegisterViewModel(UserManager<AppUser> userManager)
         {
-            //    _userManager = userManager;
-            _appEFContext = appEFContext;
-
+            _userManager = userManager;
             RuleFor(x => x.Email)
-               .NotEmpty()
-               .WithMessage("Поле не може бути пустим")
-               .MinimumLength(6)
-               .EmailAddress()
-               .WithMessage("Помилка заповнення поля Email")
-               .Must(IsValidEmail)
-               .WithName("Email")
-               .WithMessage("Такий користувач вже існує");
+               .NotEmpty().WithMessage("Поле пошта є обов'язковим!")
+               .EmailAddress().WithMessage("Пошта є не коректною!")
+               .DependentRules(() =>
+               {
+                   RuleFor(x => x.Email).Must(BeUniqueEmail).WithName("Email").WithMessage("Дана пошта уже зареєстрована!");
+               });
             RuleFor(x => x.Password)
-                .NotEmpty()
-                .WithMessage("Поле не може бути пустим")
-                .MinimumLength(5)
-                .WithMessage("Пароль не може бути коротший, ніж 5 символів")
-                .Matches(@"\d")
-                .WithName("Password")
-                .WithMessage("Пароль повинен містити хоча б одну цифру");
-            RuleFor(x => x.Phone)
-                .NotEmpty()
-                .WithMessage("Поле не може бути пустим")
-                .MinimumLength(10)
-                .MaximumLength(11)
-                .WithMessage("Має бути не менше 10 і не більше 11 цифр");
+                .NotEmpty().WithName("Password").WithMessage("Поле пароль є обов'язковим!")
+                .MinimumLength(5).WithName("Password").WithMessage("Поле пароль має містити міннімум 5 символів!");
+
+            //.Matches("[A-Z]").WithName("Password").WithMessage("Password must contain one or more capital letters.")
+            //.Matches("[a-z]").WithName("Password").WithMessage("Password must contain one or more lowercase letters.")
+            //.Matches(@"\d").WithName("Password").WithMessage("Password must contain one or more digits.")
+            //.Matches(@"[][""!@$%^&*(){}:;<>,.?/+_=|'~\\-]").WithName("Password").WithMessage("Password must contain one or more special characters.")
+            //.Matches("^[^£# “”]*$").WithName("Password").WithMessage("Password must not contain the following characters £ # “” or spaces.");
             RuleFor(x => x.ConfirmPassword)
-                .NotEmpty()
-                .WithMessage("Поле не може бути пустим")
-                .Equal(x => x.Password)
-                .WithMessage("Введене підтвердження не співпадає з паролем");
-            RuleFor(x => x.FirstName)
-                .NotEmpty()
-                .WithMessage("Поле не може бути пустим");
-            RuleFor(x => x.SecondName)
-                .NotEmpty()
-                .WithMessage("Поле не може бути пустим");
-
+                .NotEmpty().WithName("ConfirmPassword").WithMessage("Поле є обов'язковим!")
+                 .Equal(x => x.Password).WithMessage("Поролі не співпадають!");
         }
-
-        private bool IsValidEmail(string email)
+        private bool BeUniqueEmail(string email)
         {
-            var user = _appEFContext.Users.FirstOrDefault(x => x.Email == email);
-            if (user == null)
-            {
-                return true;
-            }
-            return false;
+            return _userManager.FindByEmailAsync(email).Result == null;
         }
-
-        //RuleFor(x => x.Email)
-        //        .NotEmpty().WithMessage("Email address is required!")
-        //        .EmailAddress().WithMessage("Email is not valid!")
-        //        .Must(BeUniqueEmail).WithName("Email").WithMessage("Email is already registered");
-        //    RuleFor(x => x.Password)
-        //        .NotEmpty().WithName("Password").WithMessage("Password is required")
-        //        .MinimumLength(5).WithName("Password").WithMessage("Password minimum length is 5");
-
-        //    RuleFor(x => x.ConfirmPassword)
-        //        .NotEmpty().WithName("ConfirmPassword").WithMessage("Confirm your Password")
-        //         .Equal(x => x.Password).WithMessage("Password Confirmation do not match");
-        //}
-
-
-        //private bool BeUniqueEmail(string email)
-        //{
-        //    //var user = _userManager.FindByEmailAsync(email).Result;
-        //    //.Users
-        //    //.FirstOrDefault(u => u.Email.ToLower() == email.ToLower());
-        //    return user == null;
-        //}
     }
 }

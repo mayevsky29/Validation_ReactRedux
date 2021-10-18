@@ -9,6 +9,6 @@ namespace AutoPart.Constants
     {
         public const string Admin = "admin";
         public const string User = "user";
-        public const string Maneger = "maneger";
+        public const string Manager = "manager";
     }
 }
