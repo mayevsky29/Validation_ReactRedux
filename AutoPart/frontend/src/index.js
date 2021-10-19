@@ -1,18 +1,22 @@
 import 'bootstrap/dist/css/bootstrap.css';
+import 'font-awesome/css/font-awesome.min.css';
 import React from 'react';
 import ReactDOM from 'react-dom';
 import './index.css';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
 import { Provider } from 'react-redux';
-import store from './store';
+import { ConnectedRouter } from 'connected-react-router';
+import store, {history} from './store';
+
+//console.log("hello", history);
 
 ReactDOM.render(
-  <React.StrictMode>
     <Provider store={store}>
-      <App />
-    </Provider>
-  </React.StrictMode>,
+     <ConnectedRouter history={history}>
+        <App />
+      </ConnectedRouter>
+    </Provider>,
   document.getElementById('root')
 );
 

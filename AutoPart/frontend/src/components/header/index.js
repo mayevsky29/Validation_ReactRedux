@@ -5,7 +5,7 @@ import { useSelector } from 'react-redux'
 const Header = () => {
     const {isAuth, username} = useSelector(redux => redux.auth);
 
-    console.log("Auth user info ", isAuth);
+    //console.log("Auth user info ", isAuth);
     return (
         <nav className="navbar navbar-expand-lg navbar-light bg-light">
             <div className="container">

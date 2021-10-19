@@ -1,12 +1,14 @@
-import React from 'react'
+import React, {useRef} from 'react'
 import { Formik, Form } from 'formik';
-import { useHistory } from "react-router-dom";
-import authService from '../../../services/auth.service';
+import { push } from "connected-react-router";
+//import { useHistory } from "react-router-dom";
 import MyTextInput from '../../common/MyTextInput';
 import validationFields from './validation';
-import { useDispatch } from 'react-redux';
-import { REGISTER } from '../../../constants/actionTypes';
-import axiosService from '../../../services/axiosService';
+import { useDispatch, useSelector } from 'react-redux';
+import MyPhotoInput from '../../common/MyPhotoInput';
+import { RegisterUser } from '../../../actions/auth';
+import EclipseWidget from '../../common/eclipse';
+
 
 
 const RegisterPage = () => {
@@ -16,80 +18,48 @@ const RegisterPage = () => {
         phone: '',
         firstName: '',
         secondName: '',
+        photo: null,
         password: '',
         confirmPassword: ''
     }
-    const history = useHistory();
+    //const history = useHistory();
     const dispatch = useDispatch();
+    const { loading, errors } = useSelector(state => state.auth);
+    const refFormik = useRef();
+    const titleRef = useRef();
 
-    // const onSubmitHandler = async (values) => {
+    const onSubmitHandler = async (values) => {
 
-    //     try {
-    //         const result = await authService.register(values);
-    //         console.log("Server is good ", result);
-    //         dispatch({type: REGISTER, payload: values.email});
-    //         history.push("/");
-    //     }
-    //     catch (error) {
-    //         console.log("Server is bad ", error.response);
-    //     }
-
-        // const onSubmitHandler = (values) => {
-        //     axiosService.send('api/auth/register', values)
-        //     .then(data => {
-        //         dispatch({type: "REGISTER_USER", payload: {
-        //             firstName: values.firstName,
-        //             lastName: values.secondName,
-        //             phone: values.phone,
-        //             email: values.email
-        //         }});
-        //         history.push('/');
-        //     })
-        //     .catch(error => {
-        //         var response = error.response;
-        //         alert(response.data.error[0].description);
-        //     });
-
-
-
-            const onSubmitHandler = async (values) => {
-                try {
-                    const result = await authService.register(values);
-                    console.log("Server is good ", result);
-                    var jwt_token=result.data.token;
-                    dispatch({ type: REGISTER, payload: verified });
-                    localStorage.setItem('Current user',jwt_token);
-                    console.log("Local:",localStorage);
-                    authTokenRequest(jwt_token);
-                    history.push("/");
-                }
-                catch (err) {
-        
-                    var res = err.response.data.errors;
-        
-                    console.log("Errors:", res);
-                    let answer_errors = {
-                        email: '',
-                    };
-        
-                    if (res.Email) {
-                        let str = "";
-                        res.Email.forEach(element => {
-                            str += element + " ";
-                        });
-                        answer_errors.email = str;
-                    }
-                    dispatch({ type: ERRORS, payloads: answer_errors.email });
-        
-                    console.log("Server is bad ", error.response);
-                }
+        console.log("errors", errors);
+        try {            
+            const formData = new FormData();
+            Object.entries(values).forEach(([key, value]) => formData.append(key, value));
+            dispatch(RegisterUser(formData))
+                .then(result => {
+                    dispatch(push("/"));
+                })
+                .catch(ex=> {
+                    Object.entries(ex.errors).forEach(([key, values]) => {
+                        let message = '';
+                        values.forEach(text=> message+=text+" ");
+                        refFormik.current.setFieldError(key,message);
+                    });
+                    titleRef.current.scrollIntoView({ behavior: 'smooth' })
+                    
+                });
+        }
+        catch (error) {
+            console.log("Server is bad register from", errors);
+        }
     }
 
     return (
+        
         <div className="row">
             <div className="offset-md-3 col-md-6">
-                <h1 className="text-center">Реєстрація</h1>
+                <h1 ref={titleRef} className="text-center" >Реєстрація</h1>
                 <Formik
+                    innerRef = {refFormik}
                     initialValues={initState}
                     validationSchema={validationFields()}
                     onSubmit={onSubmitHandler}
@@ -118,6 +88,10 @@ const RegisterPage = () => {
                             name="firstName" 
                             id="firstName"
                             type="text" />
+                        
+                        <MyPhotoInput 
+                            refFormik={refFormik}
+                            field="photo" />
 
                         <MyTextInput
                             label="Пароль"
@@ -136,6 +110,7 @@ const RegisterPage = () => {
                 </Formik>
             </div>
 
+            {loading && <EclipseWidget />}
         </div>
     )
 }

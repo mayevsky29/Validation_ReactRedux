@@ -1,11 +1,9 @@
-import logo from './logo.svg';
 import './App.css';
 import React from 'react';
 import {
-  BrowserRouter as Router,
   Switch,
   Route
-} from "react-router-dom";
+} from "react-router";
 import Header from './components/header';
 import RegisterPage from './components/auth/Register';
 import LoginPage from './components/auth/Login';
@@ -15,7 +13,7 @@ class App extends React.Component {
 
   render() {
     return (
-      <Router>
+      <>
         <Header />
         <div className="container">
           <Switch>
@@ -33,7 +31,8 @@ class App extends React.Component {
 
           </Switch>
         </div>
-      </Router>
+        </>
+      
     );
   }
 }
