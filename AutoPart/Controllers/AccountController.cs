@@ -1,11 +1,14 @@
 ﻿using AutoMapper;
 using AutoPart.Constants;
+using AutoPart.Mapper;
 using AutoPart.Models;
 using AutoPart.Services;
+using Data.AutoPart;
 using Data.AutoPart.Entities.Identity;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -18,6 +21,7 @@ namespace AutoPart.Controllers
     [ApiController]
     public class AccountController : ControllerBase
     {
+        private readonly AppEFContext _context;
         private readonly IMapper _mapper;
         private readonly UserManager<AppUser> _userManager;
         private readonly SignInManager<AppUser> _signInManager;
@@ -26,12 +30,14 @@ namespace AutoPart.Controllers
         public AccountController(UserManager<AppUser> userManager,
             SignInManager<AppUser> signInManager,    
             IJwtTokenService jwtTokenService,
-            IMapper mapper)
+            IMapper mapper,
+            AppEFContext context)
         {
             _userManager = userManager;
             _signInManager = signInManager;
             _jwtTokenService = jwtTokenService;
             _mapper = mapper;
+            _context = context;
         }
 
 
@@ -94,6 +100,18 @@ namespace AutoPart.Controllers
             {
                 token = _jwtTokenService.CreateToken(user)
             });
+        }
+
+        [HttpGet]
+        [Route("user")]
+        public async Task<IActionResult> GetUsersList()
+        {
+
+            var userlist = await _context.Users
+                .Select(res => _mapper.Map<UserVM>(res))
+                .ToListAsync();
+
+            return Ok(userlist);
         }
     }
 }

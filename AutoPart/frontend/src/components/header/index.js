@@ -19,8 +19,15 @@ const Header = () => {
                             <Link className="nav-link active" aria-current="page" to="/">Головна</Link>
                         </li>
                     </ul>
-
-                    {!isAuth ?
+                   {role == "admin" ?   
+                        <li className="nav-item">
+                            <Link className="nav-link active" aria-current="page" to="/users">Користувачі</Link>
+                        </li>
+                    
+                    :
+                        null
+                    }
+                    {role == "" ?
                         <ul className="navbar-nav">
                             <li className="nav-item">
                                 <Link className="nav-link" to="/login">Вхід</Link>
