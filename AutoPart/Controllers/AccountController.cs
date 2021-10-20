@@ -107,11 +107,11 @@ namespace AutoPart.Controllers
         public async Task<IActionResult> GetUsersList()
         {
 
-            var userlist = await _context.Users
+            var userList = await _context.Users
                 .Select(res => _mapper.Map<UserVM>(res))
                 .ToListAsync();
 
-            return Ok(userlist);
+            return Ok(userList);
         }
     }
 }

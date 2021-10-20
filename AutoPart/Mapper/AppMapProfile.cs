@@ -12,7 +12,7 @@ namespace AutoPart.Mapper
     {
         public AppMapProfile()
         {
-            CreateMap<AppUser, UserVM>()
+            CreateMap<UserVM, AppUser>()
                .ForMember(dest => dest.Photo, opt => opt.MapFrom(dest => "images/" + dest.Photo));
             //CreateMap<RegisterViewModel, AppUser>()
             //    .ForMember(x => x.Photo, opt => opt.Ignore())
